@@ -25,15 +25,17 @@ const defaultLink = {
     y: null,
     fill: null,
     r: 0.1,
-    parent: null
+    parent: null,
+    type: 'rect-link'
 };
 
 const defaultLine = {
     id: null,
     start: null,
     end: null,
-    startSide: null,
-    endSide: null,
+    stroke: '#000',
+    coords: null,
+    strokeWidth: 0.02,
     type: 'line'
 }
 
@@ -114,6 +116,10 @@ function updateCoordinates(rect, model) {
 
 function startDrag(evt) {
     evt.preventDefault();
+    if (evt.target.classList.contains('link')) {
+        selectedElement = linksList.find(el => el.id === evt.target.id);
+        createLineFromLink(selectedElement);
+    }
     if (evt.target.classList.contains('rect')) {
         const rect = evt.target;
         selectedElement = rectsList.find(el => el.id === rect.id);
@@ -127,17 +133,52 @@ function startDrag(evt) {
     }
 }
 
+function createLineFromLink(link) {
+    const line = Object.assign({}, defaultLine);
+    line.id = Math.random().toString(36).slice(2);
+    line.start = link.id;
+    line.stroke = link.fill;
+    linesList.push(line);
+    selectedElement = line;
+    const element = document.createElementNS(xmlns, "line");
+    setLineAttributes(element, line);
+    svg.appendChild(element);
+}
+
+function setLineAttributes(element, line) {
+    element.setAttribute('id', line.id);
+    setLineCoordinates(element, line);
+    element.setAttribute('class', 'line');
+    element.setAttribute('stroke', line.stroke);
+    element.setAttribute('stroke-width', line.strokeWidth);
+}
+
+function setLineCoordinates(element, line) {
+    const start = linksList.find(link => link.id === line.start);
+    element.setAttribute('x1', start.x);
+    element.setAttribute('y1', start.y);
+    if (line.end) {
+        const end = linksList.find(link => link.id === line.end);
+        element.setAttribute('x2', end.x);
+        element.setAttribute('y2', end.y);
+    } else if (line.coords) {
+        element.setAttribute('x2', line.coords.x);
+        element.setAttribute('y2', line.coords.y);
+    }
+}
+
 function drag(evt) {
-    if (selectedElement) {
+    if (selectedElement && selectedElement.type === 'rect') {
         const rect = document.getElementById(selectedElement.id);
-        const coord = getMousePosition(evt);
-        selectedElement.x = coord.x - offset.x;
-        selectedElement.y = coord.y - offset.y;
+        const coords = getMousePosition(evt);
+        selectedElement.x = coords.x - offset.x;
+        selectedElement.y = coords.y - offset.y;
         updateCoordinates(rect, selectedElement);
-    } else {
-        if (evt.target.id) {
-            console.log(evt.target.id);
-        }
+    } else if (selectedElement && selectedElement.type === 'line') {
+        const element = document.getElementById(selectedElement.id);
+        const coords = getMousePosition(evt);
+        selectedElement.coords = coords;
+        setLineCoordinates(element, selectedElement);
     }
 }
 
