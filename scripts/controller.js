@@ -18,7 +18,7 @@ function makeDraggable(evt) {
     svg.addEventListener('mousedown', startDrag);
     svg.addEventListener('mousemove', drag);
     svg.addEventListener('mouseup', endDrag);
-    svg.addEventListener('mouseleave', endDrag);
+    // svg.addEventListener('mouseleave', endDrag);
 
     createDefaultRect();
 }
@@ -35,49 +35,42 @@ function createDefaultRect() {
 
 function setRectAttributes(rect, newRect) {
     rect.setAttributeNS(null, 'id', newRect.id);
-    rect.setAttributeNS(null, 'x', newRect.x);
-    rect.setAttributeNS(null, 'y', newRect.y);
     rect.setAttributeNS(null, 'width', newRect.width);
     rect.setAttributeNS(null, 'height', newRect.height);
     rect.setAttributeNS(null, 'stroke', newRect.stroke);
     rect.setAttributeNS(null, 'stroke-width', newRect.strokeWidth);
     rect.setAttributeNS(null, 'fill', newRect.fill);
     rect.setAttributeNS(null, 'class', 'rect draggable');
+    updateCoordinates(rect, newRect);
+}
 
+function updateCoordinates(rect, model) {
+    rect.setAttributeNS(null, 'x', model.x);
+    rect.setAttributeNS(null, 'y', model.y);
 }
 
 function startDrag(evt) {
+    evt.preventDefault();
     if (evt.target.classList.contains('rect')) {
-        selectedElement = evt.target;
-        const rect = rectsList.find(el => el.id === selectedElement.id);
-        if (rect.new) {
+        const rect = evt.target;
+        selectedElement = rectsList.find(el => el.id === rect.id);
+        if (selectedElement.new) {
             createDefaultRect();
-            rect.new = false;
+            selectedElement.new = false;
         }
         offset = getMousePosition(evt);
-        // Get all the transforms currently on this element
-        const transforms = selectedElement.transform.baseVal;
-        // Ensure the first transform is a translate transform
-        if (transforms.length === 0 ||
-            transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-            // Create an transform that translates by (0, 0)
-            const translate = svg.createSVGTransform();
-            translate.setTranslate(0, 0);
-            // Add the translation to the front of the transforms list
-            selectedElement.transform.baseVal.insertItemBefore(translate, 0);
-        }
-        // Get initial translation amount
-        transform = transforms.getItem(0);
-        offset.x -= transform.matrix.e;
-        offset.y -= transform.matrix.f;
+        offset.x -= parseFloat(selectedElement.x);
+        offset.y -= parseFloat(selectedElement.y);
     }
 }
 
 function drag(evt) {
     if (selectedElement) {
-        evt.preventDefault();
+        const rect = document.getElementById(selectedElement.id);
         const coord = getMousePosition(evt);
-        transform.setTranslate(coord.x - offset.x, coord.y - offset.y);
+        selectedElement.x = coord.x - offset.x;
+        selectedElement.y = coord.y - offset.y;
+        updateCoordinates(rect, selectedElement);
     }
 }
 
