@@ -36,10 +36,5 @@ function setRectAttributes(rect, newRect) {
 function updateCoordinates(rect, model) {
     rect.setAttributeNS(null, 'x', model.x);
     rect.setAttributeNS(null, 'y', model.y);
-    const linkCoords = getRectLinkCoordinates(model);
-    linksList.filter(el => el.parent === model.id).forEach((link, index) => {
-        link.x = linkCoords[index][0];
-        link.y = linkCoords[index][1];
-        setLinkCoordinates(document.getElementById(link.id), link);
-    });
+    updateLinks(model);
 }

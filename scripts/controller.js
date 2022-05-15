@@ -50,8 +50,9 @@ function drag(evt) {
     } else if (selectedElement && selectedElement.type === 'line') {
         const element = document.getElementById(selectedElement.id);
         const coords = getMousePosition(evt);
-        selectedElement.coords = coords;
+        selectedElement.endCoords = coords;
         setLineCoordinates(element, selectedElement);
+        console.log(selectedElement);
     }
 }
 

@@ -5,7 +5,8 @@ const defaultLine = {
     start: null,
     end: null,
     stroke: '#000',
-    coords: null,
+    startCoords: null,
+    endCoords: null,
     strokeWidth: 0.02,
     type: 'line'
 }
@@ -14,7 +15,7 @@ function createLineFromLink(link) {
     const line = Object.assign({}, defaultLine);
     line.id = Math.random().toString(36).slice(2);
     line.start = link.id;
-    line.coords = {x: link.x, y: link.y};
+    line.endCoords = {x: link.x, y: link.y};
     line.stroke = link.fill;
     linesList.push(line);
     selectedElement = line;
@@ -33,15 +34,25 @@ function setLineAttributes(element, line) {
 }
 
 function setLineCoordinates(element, line) {
-    const start = linksList.find(link => link.id === line.start);
-    element.setAttribute('x1', start.x);
-    element.setAttribute('y1', start.y);
+    if (line.start) {
+        const start = linksList.find(link => link.id === line.start);
+        element.setAttribute('x1', start.x);
+        element.setAttribute('y1', start.y);
+    } else if (line.startCoords) {
+        element.setAttribute('x2', line.startCoords.x);
+        element.setAttribute('y2', line.startCoords.y);
+    }
     if (line.end) {
         const end = linksList.find(link => link.id === line.end);
         element.setAttribute('x2', end.x);
         element.setAttribute('y2', end.y);
-    } else if (line.coords) {
-        element.setAttribute('x2', line.coords.x);
-        element.setAttribute('y2', line.coords.y);
+    } else if (line.endCoords) {
+        element.setAttribute('x2', line.endCoords.x);
+        element.setAttribute('y2', line.endCoords.y);
     }
+}
+
+function updateLine(link) {
+    const line = linesList.find(el => el.start === link.id || el.end === link.id);
+    setLineCoordinates(document.getElementById(line.id), line);
 }

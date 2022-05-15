@@ -43,3 +43,16 @@ function getRectLinkCoordinates(model) {
     return [[model.x + model.width / 2, model.y], [ model.x + model.width, model.y + model.height / 2],
             [model.x + model.width / 2, model.y + model.height], [model.x, model.y + model.height / 2]];
 }
+
+function updateLinks(model) {
+    const linkCoords = getRectLinkCoordinates(model);
+    linksList.filter(el => el.parent === model.id).forEach((link, index) => {
+        link.x = linkCoords[index][0];
+        link.y = linkCoords[index][1];
+        setLinkCoordinates(document.getElementById(link.id), link);
+
+        if (link.active) {
+            updateLine(link);
+        }
+    });
+}
