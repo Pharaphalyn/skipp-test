@@ -30,7 +30,7 @@ function setLinkAttributes(circle, link) {
     circle.setAttribute('id', link.id);
     circle.setAttribute('r', link.r);
     circle.setAttribute('fill', link.fill);
-    circle.setAttribute('class', 'link');
+    circle.setAttribute('class', link.type);
     setLinkCoordinates(circle, link);
 }
 

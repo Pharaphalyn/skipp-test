@@ -56,3 +56,11 @@ function updateLine(link) {
     const line = linesList.find(el => el.start === link.id || el.end === link.id);
     setLineCoordinates(document.getElementById(line.id), line);
 }
+
+function destroyLine(lineId) {
+    document.getElementById(lineId).remove();
+    const index = linesList.findIndex(el => el.id === lineId);
+    if (index !== -1) {
+        linesList.splice(index, 1);
+    }
+}

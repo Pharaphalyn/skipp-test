@@ -19,7 +19,7 @@ function makeDraggable(evt) {
 
 function startDrag(evt) {
     evt.preventDefault();
-    if (evt.target.classList.contains('link')) {
+    if (evt.target.classList.contains('rect-link')) {
         const link = linksList.find(el => el.id === evt.target.id);
         const line = linesList.find(el => el.start === link.id || el.end === link.id);
         if (line) {
@@ -52,11 +52,21 @@ function drag(evt) {
         const coords = getMousePosition(evt);
         selectedElement.endCoords = coords;
         setLineCoordinates(element, selectedElement);
-        console.log(selectedElement);
     }
 }
 
 function endDrag(evt) {
+    console.log(evt.target);
+    if (selectedElement && selectedElement.type === 'line') {
+        if (evt.target.classList.contains('rect-link')) {
+            const endLink = linksList.find(el => el.id === evt.target.id);
+            endLink.active = true;
+            selectedElement.end = endLink.id;
+            setLineCoordinates(document.getElementById(selectedElement.id), selectedElement);
+        } else {
+            destroyLine(selectedElement.id);
+        }
+    } 
     selectedElement = null;
 }
 
