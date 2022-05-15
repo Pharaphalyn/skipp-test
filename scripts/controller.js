@@ -13,19 +13,28 @@ const defaultRect = {
     new: true
 };
 
+const defaultLine = {
+    id: null,
+    start: null,
+    end: null,
+    startSide: null,
+    endSide: null,
+    links: []
+}
+
 function makeDraggable(evt) {
     svg = evt.target;
     svg.addEventListener('mousedown', startDrag);
     svg.addEventListener('mousemove', drag);
     svg.addEventListener('mouseup', endDrag);
-    // svg.addEventListener('mouseleave', endDrag);
+    svg.addEventListener('mouseleave', endDrag);
 
-    createDefaultRect();
+    createRect(defaultRect);
 }
 
-function createDefaultRect() {
+function createRect(model) {
     const xmlns = "http://www.w3.org/2000/svg";
-    const newRect = Object.assign({}, defaultRect);
+    const newRect = Object.assign({}, model);
     newRect.id = Math.random().toString(36).slice(2);
     const rect = document.createElementNS(xmlns, "rect");
     setRectAttributes(rect, newRect);
@@ -55,7 +64,7 @@ function startDrag(evt) {
         const rect = evt.target;
         selectedElement = rectsList.find(el => el.id === rect.id);
         if (selectedElement.new) {
-            createDefaultRect();
+            createRect(defaultRect);
             selectedElement.new = false;
         }
         offset = getMousePosition(evt);
@@ -71,6 +80,10 @@ function drag(evt) {
         selectedElement.x = coord.x - offset.x;
         selectedElement.y = coord.y - offset.y;
         updateCoordinates(rect, selectedElement);
+    } else {
+        if (evt.target.id) {
+            console.log(evt.target.id);
+        }
     }
 }
 
