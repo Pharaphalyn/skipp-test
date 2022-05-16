@@ -49,20 +49,14 @@ function drag(evt) {
         selectedElement.y = coords.y - offset.y;
         updateCoordinates(rect, selectedElement);
     } else if (selectedElement && selectedElement.type === 'line') {
-        // if (timeout) {
-        //     console.log('return');
-        //     return;
-        // }
         const element = document.getElementById(selectedElement.id);
         const coords = getMousePosition(evt);
         selectedElement.endCoords = coords;
         setLineCoordinates(element, selectedElement);
-        timeout = true;
-        setTimeout(() => timeout = false, 1000);
     }
 }
 
-function endDrag(evt) {
+function endDrag(evt) { 
     if (selectedElement && selectedElement.type === 'line') {
         const element = document.getElementById(selectedElement.id);
         const coords = getMousePosition(evt);
@@ -74,7 +68,7 @@ function endDrag(evt) {
             selectedElement.end = endLink.id;
             setLineCoordinates(document.getElementById(selectedElement.id), selectedElement);
         } else {
-            // destroyLine(selectedElement.id);
+            destroyLine(selectedElement);
         }
     } 
     selectedElement = null;

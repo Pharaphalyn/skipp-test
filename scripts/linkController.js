@@ -5,6 +5,7 @@ const defaultLink = {
     x: null,
     y: null,
     fill: null,
+    side: true,
     active: false,
     r: 0.1,
     parentId: null,
@@ -13,10 +14,11 @@ const defaultLink = {
 };
 
 function createLinksForRect(model) {
-    getRectLinkCoordinates(model).forEach(coord => {
+    getRectLinkCoordinates(model).forEach((coord, index) => {
         const link = Object.assign({}, defaultLink);
         link.id = Math.random().toString(36).slice(2);
         link.parentId = model.id;
+        link.side = !!(!index % 2);
         link.x = coord[0];
         link.y = coord[1];
         link.fill = model.stroke;
@@ -33,6 +35,7 @@ function createLinkForLine(x, y, parent) {
     link.parentId = parent.parentId;
     link.x = x;
     link.y = y;
+    link.active = true;
     link.fill = parent.stroke;
     link.type = "line-link";
     link.float = true;
@@ -69,7 +72,15 @@ function updateLinks(model) {
         setLinkCoordinates(document.getElementById(link.id), link);
 
         if (link.active) {
-            updateLine(link);
+            updateLine(link, true);
         }
     });
+}
+
+function destroyLink(link) {
+    const index = linksList.findIndex(el => el.id === link.id);
+    if (index !== -1) {
+        document.getElementById(linksList[index].id).remove();
+        linksList.splice(index, 1);
+    }
 }

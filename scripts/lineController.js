@@ -5,6 +5,7 @@ const defaultLine = {
     start: null,
     end: null,
     parentId: null,
+    side: true,
     stroke: '#000',
     startCoords: null,
     endCoords: null,
@@ -32,6 +33,9 @@ function createLine(parent, link1 = undefined, link2 = undefined, startCoords = 
     line.id = Math.random().toString(36).slice(2);
     line.parentId = parent.parentId;
     line.start = link1 && link1.id;
+    if (link1 && !link1.side) {
+        line.side = false;
+    }
     line.end = link2 && link2.id;
     line.startCoords = startCoords;
     line.endCoords = endCoords;
@@ -52,11 +56,9 @@ function setLineAttributes(element, line) {
 }
 
 function setLineCoordinates(element, line) {
-    console.log(line.id, line.start);
     let x1, x2, y1, y2;
     if (line.start) {
         const start = linksList.find(link => link.id === line.start);
-        console.log(start);
         x1 = start.x;
         y1 = start.y;
     } else if (line.startCoords) {
@@ -77,9 +79,21 @@ function setLineCoordinates(element, line) {
         const start = linksList.find(link => link.id === linesList.find(el => el.id === line.parentId).start);
         x1 = start.x;
         y1 = start.y;
+        let newX1, newX2, newY1, newY2;
+        if (!start.side) {
+            newX1 = x1 + (x2 - x1) / 2;
+            newX2 = x1 + (x2 - x1) / 2;
+            newY1 = y1;
+            newY2 = y2;
+        } else {
+            newX1 = x1;
+            newX2 = x2;
+            newY1 = y1 + (y2 - y1) / 2;
+            newY2 = y1 + (y2 - y1) / 2;
+        }
         if (childLinks.length !== 2) {
-            const link1 = createLinkForLine(x1 + (x2 - x1) / 2, y1, line);
-            const link2 = createLinkForLine(x1 + (x2 - x1) / 2, y2, line);
+            const link1 = createLinkForLine(newX1, newY1, line);
+            const link2 = createLinkForLine(newX2, newY2, line);
             // const end = linksList.find(link => link.id === line.end);
             line.end = link1.id;
             updateLine(start);
@@ -89,20 +103,17 @@ function setLineCoordinates(element, line) {
         } else {
             link1 = childLinks[0];
             link2 = childLinks[1];
-            console.log(link1.y);
-            link1.x = x1 + (x2 - x1) / 2;
-            link1.y = y1;
-            link2.x = x1 + (x2 - x1) / 2;
-            link2.y = y2;
+            link1.x = newX1;
+            link1.y = newY1;
+            link2.x = newX2;
+            link2.y = newY2;
             setLinkCoordinates(document.getElementById(link1.id), link1);
             setLinkCoordinates(document.getElementById(link2.id), link2);
 
             updateLine(start);
             updateLine(link1);
             
-            // selectedElement.start = link2.id;
             selectedElement.endCoords = {x: x2, y: y2};
-            console.log(linksList);
             updateLine(link2);
         }
     } else {
@@ -113,16 +124,34 @@ function setLineCoordinates(element, line) {
     }
 }
 
-function updateLine(link) {
-    const line = linesList.find(el => el.start === link.id);
+function updateLine(link, any = false) {
+    const line = linesList.find(el => el.start === link.id || (any && el.end === link.id));
     setLineCoordinates(document.getElementById(line.id), line);
 }
 
-function destroyLine(lineId) {
+function destroyLine(line) {
     while (true) {
-        const index = linesList.findIndex(el => el.parentId === lineId);
+        const id = line.parentId;
+        const index = linesList.findIndex(el => el.parentId === id);
+
         if (index !== -1) {
-            document.getElementById(lineId).remove();
+            while (true) {
+                const linkIndex = linksList.findIndex(el => el.type !== 'rect-link' &&
+                                    (el.id === linesList[index].start || el.id === linesList[index].end));
+                if (linkIndex === -1) {
+                    break;
+                }
+                destroyLink(linksList[linkIndex]);
+            }
+            while (true) {
+                const linkIndex = linksList.findIndex(el => el.active &&
+                            (el.id === linesList[index].start || el.id === linesList[index].end));
+                if (linkIndex === -1) {
+                    break;
+                }
+                linksList[linkIndex].active = false;
+            }
+            document.getElementById(linesList[index].id).remove();
             linesList.splice(index, 1);
         } else {
             return;
