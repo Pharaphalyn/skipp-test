@@ -8,14 +8,17 @@
                 pointer-events: none;
             }
         </style>
-        <script src="scripts/controller.js"></script>
+        <script src="scripts/viewController.js"></script>
         <script src="scripts/rectController.js"></script>
         <script src="scripts/linkController.js"></script>
         <script src="scripts/lineController.js"></script>
+        <script src="scripts/controller.js"></script>
     </head>
     <title></title>
     <body>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" onload="makeDraggable(evt)">
-        </svg>
+        <div id="svgContainer">
+            <svg id="svgImage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" onload="makeDraggable(evt)">
+            </svg>
+        </div>
     </body>
 </html>

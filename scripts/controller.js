@@ -70,7 +70,7 @@ function endDrag(evt) {
         } else {
             destroyLine(selectedElement);
         }
-    } 
+    }
     selectedElement = null;
 }
 
