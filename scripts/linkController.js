@@ -7,7 +7,8 @@ const defaultLink = {
     fill: null,
     active: false,
     r: 0.1,
-    parent: null,
+    parentId: null,
+    float: false,
     type: 'rect-link'
 };
 
@@ -15,7 +16,7 @@ function createLinksForRect(model) {
     getRectLinkCoordinates(model).forEach(coord => {
         const link = Object.assign({}, defaultLink);
         link.id = Math.random().toString(36).slice(2);
-        link.parent = model.id;
+        link.parentId = model.id;
         link.x = coord[0];
         link.y = coord[1];
         link.fill = model.stroke;
@@ -24,6 +25,22 @@ function createLinksForRect(model) {
         svg.appendChild(circle);
         linksList.push(link);
     });
+}
+
+function createLinkForLine(x, y, parent) {
+    const link = Object.assign({}, defaultLink);
+    link.id = Math.random().toString(36).slice(2);
+    link.parentId = parent.parentId;
+    link.x = x;
+    link.y = y;
+    link.fill = parent.stroke;
+    link.type = "line-link";
+    link.float = true;
+    const circle = document.createElementNS(xmlns, "circle");
+    setLinkAttributes(circle, link);
+    svg.appendChild(circle);
+    linksList.push(link);
+    return link;
 }
 
 function setLinkAttributes(circle, link) {
@@ -46,7 +63,7 @@ function getRectLinkCoordinates(model) {
 
 function updateLinks(model) {
     const linkCoords = getRectLinkCoordinates(model);
-    linksList.filter(el => el.parent === model.id).forEach((link, index) => {
+    linksList.filter(el => el.parentId === model.id).forEach((link, index) => {
         link.x = linkCoords[index][0];
         link.y = linkCoords[index][1];
         setLinkCoordinates(document.getElementById(link.id), link);

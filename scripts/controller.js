@@ -1,4 +1,4 @@
-// import { createRect } from "rectController.js";
+let timeout = false;
 
 let selectedElement, offset;
 
@@ -26,6 +26,7 @@ function startDrag(evt) {
             return selectedElement = line;
         }
         createLineFromLink(link);
+        console.log(link);
     }
     if (evt.target.classList.contains('rect')) {
         const rect = evt.target;
@@ -48,23 +49,32 @@ function drag(evt) {
         selectedElement.y = coords.y - offset.y;
         updateCoordinates(rect, selectedElement);
     } else if (selectedElement && selectedElement.type === 'line') {
+        // if (timeout) {
+        //     console.log('return');
+        //     return;
+        // }
         const element = document.getElementById(selectedElement.id);
         const coords = getMousePosition(evt);
         selectedElement.endCoords = coords;
         setLineCoordinates(element, selectedElement);
+        timeout = true;
+        setTimeout(() => timeout = false, 1000);
     }
 }
 
 function endDrag(evt) {
-    console.log(evt.target);
     if (selectedElement && selectedElement.type === 'line') {
+        const element = document.getElementById(selectedElement.id);
+        const coords = getMousePosition(evt);
+        selectedElement.endCoords = coords;
+        setLineCoordinates(element, selectedElement);
         if (evt.target.classList.contains('rect-link')) {
             const endLink = linksList.find(el => el.id === evt.target.id);
             endLink.active = true;
             selectedElement.end = endLink.id;
             setLineCoordinates(document.getElementById(selectedElement.id), selectedElement);
         } else {
-            destroyLine(selectedElement.id);
+            // destroyLine(selectedElement.id);
         }
     } 
     selectedElement = null;
