@@ -73,6 +73,7 @@ function updateLinks(model) {
 
         if (link.active) {
             updateLine(link, true);
+            // updateLine(link, false, true);
         }
     });
 }

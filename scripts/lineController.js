@@ -1,5 +1,7 @@
 linesList = [];
 
+//Should've used polylines
+
 const defaultLine = {
     id: null,
     start: null,
@@ -49,13 +51,13 @@ function createLine(parent, link1 = undefined, link2 = undefined, startCoords = 
 
 function setLineAttributes(element, line) {
     element.setAttribute('id', line.id);
-    setLineCoordinates(element, line);
+    setLineCoordinates(line, element);
     element.setAttribute('class', 'line');
     element.setAttribute('stroke', line.stroke);
     element.setAttribute('stroke-width', line.strokeWidth);
 }
 
-function setLineCoordinates(element, line) {
+function setLineCoordinates(line, element = undefined) {
     let x1, x2, y1, y2;
     if (line.start) {
         const start = linksList.find(link => link.id === line.start);
@@ -93,7 +95,12 @@ function setLineCoordinates(element, line) {
         }
         if (childLinks.length !== 2) {
             const link1 = createLinkForLine(newX1, newY1, line);
-            const link2 = createLinkForLine(newX2, newY2, line);
+            let link2;
+            if (childLinks.length === 1) {
+                link2 = childLinks[0];
+            } else {
+                link2 = createLinkForLine(newX2, newY2, line);
+            }
             // const end = linksList.find(link => link.id === line.end);
             line.end = link1.id;
             updateLine(start);
@@ -117,6 +124,7 @@ function setLineCoordinates(element, line) {
             updateLine(link2);
         }
     } else {
+        element = element ? element : document.getElementById(line.id);
         element.setAttribute('x1', x1);
         element.setAttribute('y1', y1);
         element.setAttribute('x2', x2);
@@ -124,9 +132,9 @@ function setLineCoordinates(element, line) {
     }
 }
 
-function updateLine(link, any = false) {
-    const line = linesList.find(el => el.start === link.id || (any && el.end === link.id));
-    setLineCoordinates(document.getElementById(line.id), line);
+function updateLine(link, any = false, end = false) {
+    const line = linesList.find(el => (end ? el.end : el.start) === link.id || (any && el.end === link.id));
+    setLineCoordinates(line);
 }
 
 function destroyLine(line) {
